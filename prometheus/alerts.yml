@@ -1,0 +1,72 @@
+groups:
+  - name: container_alerts
+    rules:
+      # Alert เมื่อ Container CPU เกิน 80%
+      - alert: HighContainerCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{name=~".*"}[5m]) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} has high CPU usage"
+          description: "Container {{ $labels.name }} is using {{ $value }}% CPU for more than 2 minutes"
+
+      # Alert เมื่อ Container Memory เกิน 80%
+      - alert: HighContainerMemoryUsage
+        expr: (container_memory_usage_bytes{name=~".*"} / container_spec_memory_limit_bytes{name=~".*"}) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} has high memory usage"
+          description: "Container {{ $labels.name }} is using {{ $value }}% memory for more than 2 minutes"
+
+      # Alert เมื่อ Container หยุดทำงาน
+      - alert: ContainerNotRunning
+        expr: absent(container_cpu_usage_seconds_total{name=~".*"})
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} is not running"
+          description: "Container {{ $labels.name }} has stopped or is not responding"
+
+      # Alert เมื่อ System CPU เกิน 90%
+      - alert: HighSystemCPUUsage
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High system CPU usage"
+          description: "System CPU usage is {{ $value }}% for more than 2 minutes"
+
+      # Alert เมื่อ System Memory เกิน 90%
+      - alert: HighSystemMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High system memory usage"
+          description: "System memory usage is {{ $value }}% for more than 2 minutes"
+
+      # Alert เมื่อ Disk Space ต่ำ
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/var/lib"} / node_filesystem_size_bytes{mountpoint="/var/lib"}) * 100 < 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is only {{ $value }}% available"
+
+      # Alert เมื่อ Container Restart บ่อย
+      - alert: ContainerFrequentRestarts
+        expr: increase(container_start_time_seconds{name=~".*"}[15m]) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container {{ $labels.name }} has restarted more than 3 times in the last 15 minutes" 
