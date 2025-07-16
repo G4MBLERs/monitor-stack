@@ -37,7 +37,10 @@ docker compose up -d
 
 ### 4. ดู Dashboard
 
-หลังจาก login เข้า Grafana แล้ว คุณจะเห็น dashboard ชื่อ "🐳 Docker Container Monitoring & Alerts" ที่รวมทุกอย่างไว้ด้วยกัน:
+หลังจาก login เข้า Grafana แล้ว คุณจะเห็น dashboards 2 ตัว:
+
+#### **🐳 Docker Container Monitoring & Alerts** (Dashboard หลัก)
+Dashboard ที่รวมทุกอย่างไว้ด้วยกัน:
 
 **📊 Overview Metrics:**
 - 🚨 Active Alerts Count
@@ -63,6 +66,22 @@ docker compose up -d
 - 🚨 Containers with High Memory (>80%)
 - 🚨 Active Alerts Table (with color-coded severity)
 - 📋 Container Status Table
+
+#### **🐳 Container Details Dashboard (Excluding Monitor Stack)** (Dashboard ใหม่)
+Dashboard ที่แสดงรายละเอียดของแต่ละ container โดยไม่รวม monitoring stack:
+
+**📊 Container Overview:**
+- 🐳 Total Containers (Excluding Monitor Stack)
+- 📊 Average CPU Usage (%)
+- 💾 Average Memory Usage (MB)
+- 📥 Average Network Receive (bytes/sec)
+
+**📈 Container Details by Name:**
+- 📊 Container CPU Usage by Name (%)
+- 💾 Container Memory Usage by Name (MB)
+- 🌐 Container Network I/O by Name (bytes/sec)
+- 💿 Container Disk I/O by Name (bytes/sec)
+- 📋 Container Details Table - CPU Usage (%)
 
 ## Dashboard Features
 
@@ -97,6 +116,18 @@ docker compose up -d
 
 ### เพิ่ม Dashboard ใหม่
 เพิ่มไฟล์ JSON ในโฟลเดอร์ `grafana/dashboards/` และ Grafana จะ auto-load
+
+### Deploy Container Details Dashboard
+```bash
+# Deploy dashboard ใหม่ที่แสดงรายละเอียดของแต่ละ container
+./deploy-container-dashboard.sh
+
+# ทดสอบ dashboard ใหม่
+./test-container-dashboard.sh
+
+# ทดสอบด้วย containers ตัวอย่าง
+./test-container-dashboard-with-containers.sh
+```
 
 ### เปลี่ยน Grafana Credentials
 แก้ไข environment variables ใน `docker-compose.yml`:
